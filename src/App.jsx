@@ -131,7 +131,7 @@ function Login({ onAuth }) {
   try {
     console.log("📡 LOGIN API CALL");
 
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await fetch("https://mindcare-backend-71f2.onrender.com/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
