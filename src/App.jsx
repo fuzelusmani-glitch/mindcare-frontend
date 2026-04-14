@@ -397,7 +397,7 @@ function Dashboard({ user }) {
       { role: "user", content: outgoing.text }
     ];
 
-    const resp = await fetch("http://localhost:4000/api/chat", {
+    const resp = await fetch("https://mindcare-backend-71f2.onrender.com/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: payloadMessages })
