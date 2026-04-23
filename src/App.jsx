@@ -1,5 +1,6 @@
 // App.jsx (fixed)
 import React, { useEffect, useRef, useState } from "react";
+import API from"../api";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import {
   LineChart,
