@@ -132,111 +132,86 @@ function Signup({ onAuth }) {
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  //send otp fxn
-  async function handleSendOTP() {
-  if (!email) {
-    setError("Enter email first");
-    return;
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+
+    if (!name || !email || !password) {
+      setError("Please fill all fields.");
+      return;
+    }
+
+    if (!agree) {
+      setError("Please accept privacy terms.");
+      return;
+    }
+
+    try {
+      console.log("📡 SIGNUP API CALL");
+
+      const res = await API.post("/signup", {
+        name,
+        email,
+        password,
+      });
+
+      console.log("✅ SIGNUP RESPONSE:", res.data);
+
+      const authUser = res.data.user || { name, email };
+      localStorage.setItem("mindcare_user", JSON.stringify(authUser));
+      onAuth && onAuth(authUser);
+      navigate("/dashboard");
+
+    } catch (err) {
+      console.error("❌ SIGNUP ERROR:", err);
+      setError(err.response?.data?.message || "Unable to connect to the server.");
+    }
   }
-
-  try {
-    const res = await API.post("/send-otp", { email });
-    setOtpSent(true);
-    alert("OTP sent to email");
-  } catch (err) {
-    setError(err.response?.data?.message || "Failed to send OTP");
-  }
-}
-// signup fxn
-async function handleSubmit(e) {
-  e.preventDefault();
-  setError("");
-
-  if (!name || !email || !password) {
-    setError("Please fill all fields.");
-    return;
-  }
-
-  if (!otp) {
-    setError("Please enter OTP");
-    return;
-  }
-
-  if (!agree) {
-    setError("Please accept privacy terms.");
-    return;
-  }
-
-  try {
-    console.log("📡 SIGNUP API CALL");
-
-    const res = await API.post("/signup", {
-      name,
-      email,
-      password,
-      otp, // ✅ added
-    });
-
-    console.log("✅ SIGNUP RESPONSE:", res.data);
-
-    const authUser = res.data.user || { name, email };
-    localStorage.setItem("mindcare_user", JSON.stringify(authUser));
-    onAuth && onAuth(authUser);
-    navigate("/dashboard");
-
-  } catch (err) {
-    console.error("❌ SIGNUP ERROR:", err);
-    setError(err.response?.data?.message || "Unable to connect to the server.");
-  }
-}
 
   return (
     <main className="max-w-md mx-auto px-4 py-8">
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow">
         <h2 className="text-xl font-semibold">Create an account</h2>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3" aria-label="signup form">
-          {error && <div role="alert" className="text-sm text-rose-600">{error}</div>}
-          <label className="block text-sm">
-            <span className="text-xs">Full name</span>
-            <input value={name} onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full px-3 py-2 rounded-md border" />
-          </label>
-          <label className="block text-sm">
-            <span className="text-xs">Email</span>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full px-3 py-2 rounded-md border" />
-          </label>
-          
-          <button
-            type="button"
-            onClick={handleSendOTP}
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded-md mt-2"
->
-            Send OTP
-          </button>
-          <label className="block text-sm">
-            <span className="text-xs">OTP</span>
+
+        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+          {error && <div className="text-sm text-rose-600">{error}</div>}
+
+          <input
+            placeholder="Full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+          />
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md"
+          />
+
+          <label className="flex gap-2 text-xs">
             <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="mt-1 w-full px-3 py-2 rounded-md border"
-              placeholder="Enter OTP"
+              type="checkbox"
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
             />
-          </label>
-          <label className="block text-sm">
-            <span className="text-xs">Password</span>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-3 py-2 rounded-md border" />
+            I agree to privacy terms
           </label>
 
-          <label className="flex items-start gap-2 text-xs mt-2">
-            <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-            <span>I agree to the <strong>privacy terms</strong> — data is encrypted and only shared with consent.</span>
-          </label>
-          <button className="w-full px-4 py-2 bg-emerald-600 text-white rounded-md">Create account</button>
+          <button className="w-full bg-emerald-600 text-white py-2 rounded-md">
+            Create Account
+          </button>
         </form>
       </div>
     </main>
