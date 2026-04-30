@@ -232,12 +232,17 @@ function Dashboard({ user }) {
   ]);
   const [input, setInput] = useState("");
   const inputRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const [moodData, setMoodData] = useState(generateMockMoodData());
   const [selectedMetric, setSelectedMetric] = useState("mood");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [nearbyDoctors] = useState(generateMockDoctors());
 
   useEffect(() => { document.documentElement.lang = "en"; }, []);
+  // ✅ ADD THIS — auto scroll to bottom on new message
+  useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   async function handleSend() {
     if (!input.trim()) return;
@@ -289,6 +294,7 @@ function Dashboard({ user }) {
         </div>
         <div className="mt-3 flex-1 overflow-y-auto px-1" role="log" aria-live="polite">
           <AnimatePresence initial={false} mode="popLayout">
+            
             {messages.map((msg) => (
               <motion.div key={msg.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.28 }}
@@ -303,6 +309,7 @@ function Dashboard({ user }) {
               </motion.div>
             ))}
           </AnimatePresence>
+          <div ref={messagesEndRef} />
         </div>
         <div className="mt-3">
           <div className="flex items-center gap-3">
