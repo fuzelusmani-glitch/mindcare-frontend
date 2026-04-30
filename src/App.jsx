@@ -150,24 +150,47 @@ function Signup({ onAuth }) {
   }
 }
 // signup fxn
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    if (!name || !email || !password) { setError("Please fill all fields."); return; }
-    if (!agree) { setError("Please accept privacy terms."); return; }
-    try {
-      console.log("📡 SIGNUP API CALL");
-      const res = await API.post("/signup", { name, email, password }); // ✅ fixed
-      console.log("✅ SIGNUP RESPONSE:", res.data);
-      const authUser = res.data.user || { name, email }; // ✅ fixed: res.data not res.data()
-      localStorage.setItem("mindcare_user", JSON.stringify(authUser));
-      onAuth && onAuth(authUser);
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("❌ SIGNUP ERROR:", err);
-      setError(err.response?.data?.message || "Unable to connect to the server.");
-    }
+async function handleSubmit(e) {
+  e.preventDefault();
+  setError("");
+
+  if (!name || !email || !password) {
+    setError("Please fill all fields.");
+    return;
   }
+
+  if (!otp) {
+    setError("Please enter OTP");
+    return;
+  }
+
+  if (!agree) {
+    setError("Please accept privacy terms.");
+    return;
+  }
+
+  try {
+    console.log("📡 SIGNUP API CALL");
+
+    const res = await API.post("/signup", {
+      name,
+      email,
+      password,
+      otp, // ✅ added
+    });
+
+    console.log("✅ SIGNUP RESPONSE:", res.data);
+
+    const authUser = res.data.user || { name, email };
+    localStorage.setItem("mindcare_user", JSON.stringify(authUser));
+    onAuth && onAuth(authUser);
+    navigate("/dashboard");
+
+  } catch (err) {
+    console.error("❌ SIGNUP ERROR:", err);
+    setError(err.response?.data?.message || "Unable to connect to the server.");
+  }
+}
 
   return (
     <main className="max-w-md mx-auto px-4 py-8">
@@ -189,6 +212,23 @@ function Signup({ onAuth }) {
             <span className="text-xs">Password</span>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
               className="mt-1 w-full px-3 py-2 rounded-md border" />
+          </label>
+          <button
+            type="button"
+            onClick={handleSendOTP}
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded-md mt-2"
+>
+            Send OTP
+          </button>
+          <label className="block text-sm">
+            <span className="text-xs">OTP</span>
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="mt-1 w-full px-3 py-2 rounded-md border"
+              placeholder="Enter OTP"
+            />
           </label>
           <label className="flex items-start gap-2 text-xs mt-2">
             <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
