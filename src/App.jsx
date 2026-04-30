@@ -132,7 +132,24 @@ function Signup({ onAuth }) {
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  //send otp fxn
+  async function handleSendOTP() {
+  if (!email) {
+    setError("Enter email first");
+    return;
+  }
 
+  try {
+    const res = await API.post("/send-otp", { email });
+    setOtpSent(true);
+    alert("OTP sent to email");
+  } catch (err) {
+    setError(err.response?.data?.message || "Failed to send OTP");
+  }
+}
+// signup fxn
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
