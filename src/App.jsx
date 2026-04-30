@@ -230,6 +230,12 @@ async function handleSubmit(e) {
               placeholder="Enter OTP"
             />
           </label>
+          <label className="block text-sm">
+            <span className="text-xs">Password</span>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full px-3 py-2 rounded-md border" />
+          </label>
+
           <label className="flex items-start gap-2 text-xs mt-2">
             <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
             <span>I agree to the <strong>privacy terms</strong> — data is encrypted and only shared with consent.</span>
