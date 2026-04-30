@@ -267,7 +267,7 @@ function Dashboard({ user }) {
   const [input, setInput] = useState("");
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const [moodData, setMoodData] = useState(generateMockMoodData());
+  const [moodData, setMoodData] = useState([]);
   const [selectedMetric, setSelectedMetric] = useState("mood");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [nearbyDoctors] = useState(generateMockDoctors());
@@ -277,6 +277,14 @@ function Dashboard({ user }) {
   useEffect(() => {
   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  useEffect(() => {
+  async function fetchMood() {
+    const res = await API.get(`/mood/${user.email}`);
+    setMoodData(res.data);
+  }
+
+  if (user) fetchMood();
+}, [user]);
 
   async function handleSend() {
     if (!input.trim()) return;
@@ -308,10 +316,19 @@ function Dashboard({ user }) {
     }
   }
 
-  function updateMood(score) {
-    const newPoint = { date: new Date().toLocaleDateString(), mood: Math.max(-3, Math.min(3, score)) };
-    setMoodData((d) => [...d.slice(-29), newPoint]);
+  async function updateMood(score) {
+  try {
+    const res = await API.post("/mood", {
+      email: user.email,
+      mood: score
+    });
+
+    setMoodData(prev => [...prev, res.data]);
+
+  } catch (err) {
+    console.error(err);
   }
+}
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
